@@ -5,7 +5,7 @@ GET http://localhost:3000/todos/?status=TO%20DO
 GET http://localhost:3000/todos/?priority=HIGH
 
 ####
-PUT http://localhost:3000/todos/2/
+PUT http://localhost:3000/todos/1/
 
 Content-Type:application/json
 {
@@ -13,7 +13,7 @@ Content-Type:application/json
 }
 
 ####
-PUT http://localhost:3000/todos/7/
+PUT http://localhost:3000/todos/4/
 
 Content-Type: application/json
 
@@ -22,7 +22,7 @@ Content-Type: application/json
 }
 
 ####
-PUT http://localhost:3000/todos/2/
+PUT http://localhost:3000/todos/7/
 Content-Type:application/json
 {
     "todo" : "Some Task"
@@ -32,7 +32,7 @@ Content-Type:application/json
 GET http://localhost:3000/todos/4/
 
 ####
-DELETE http://localhost:3000/todos/5/
+DELETE http://localhost:3000/todos/10/
 
 ####
 POST http://localhost:3000/todos/
@@ -40,7 +40,7 @@ POST http://localhost:3000/todos/
 Content-Type:application/json
 
 {
-  "id": 20,
+  "id": 14,
   "todo": "Finalize event theme",
   "priority": "LOW",
   "status": "TO DO"
@@ -48,3 +48,7 @@ Content-Type:application/json
 
 ####
 GET http://localhost:3000/todos/?status=IN%20PROGRESS&priority=HIGH
+
+
+####
+GET http://localhost:3000/todos/?search_q=Play

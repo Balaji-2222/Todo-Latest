@@ -21,81 +21,126 @@ const dbServer = async () => {
   }
 };
 dbServer();
-//QUERY-1
-app.get("/todos/", async (request, response) => {
-  const { status } = request.query;
-  const query = `SELECT * FROM todo
-    WHERE status = '${status}'`;
-  const answer1 = await db.all(query);
-  response.send(answer1);
-});
-//QUERY-2
-app.get("/todos/", async (request, response) => {
-  const { priority } = request.query;
-  const query = `SELECT * FROM todo
-    WHERE priority LIKE '${priority}'`;
-  const answer2 = await db.all(query);
-  response.send(answer2);
-});
-//API-4
-app.put("/todos/:todoId", async (request, response) => {
-  const { todoId } = request.params;
-  const { status } = request.body;
-  const query = `UPDATE todo
-    SET status = '${status}'
-    WHERE id = ${todoId}`;
-  const answer = await db.run(query);
-  response.send("Status Updated");
-});
-//UPDATING THE PRIORITY
-app.put("/todos/:todoId", async (request, response) => {
-  const { todoId } = request.params;
-  const { priority } = request.body;
-  const query = `UPDATE todo
-    SET 
-    priority = '${priority}'
-    WHERE id = ${todoId}`;
-  const answer = await db.run(query);
-  response.send("Priority Updated");
-});
+const hasPriorityAndStatusProperties = (requestQuery) => {
+  return (
+    requestQuery.priority !== undefined && requestQuery.status !== undefined
+  );
+};
 
-app.put("/todos/:todoId", async (request, response) => {
-  const { todoId } = request.params;
-  const { todo } = request.body;
-  const query = `UPDATE todo
-    SET todo = '${todo}'
-    WHERE id = ${todoId}`;
-  const answer = await db.run(query);
-  response.send("Todo Updated");
+const hasPriorityProperty = (requestQuery) => {
+  return requestQuery.priority !== undefined;
+};
+
+const hasStatusProperty = (requestQuery) => {
+  return requestQuery.status !== undefined;
+};
+
+app.get("/todos/", async (request, response) => {
+  let data = null;
+  let getTodosQuery = "";
+  const { search_q = "", priority, status } = request.query;
+
+  switch (true) {
+    case hasPriorityAndStatusProperties(request.query): //if this is true then below query is taken in the code
+      getTodosQuery = `
+   SELECT
+    *
+   FROM
+    todo 
+   WHERE
+    todo LIKE '%${search_q}%'
+    AND status = '${status}'
+    AND priority = '${priority}';`;
+      break;
+    case hasPriorityProperty(request.query):
+      getTodosQuery = `
+   SELECT
+    *
+   FROM
+    todo 
+   WHERE
+    todo LIKE '%${search_q}%'
+    AND priority = '${priority}';`;
+      break;
+    case hasStatusProperty(request.query):
+      getTodosQuery = `
+   SELECT
+    *
+   FROM
+    todo 
+   WHERE
+    todo LIKE '%${search_q}%'
+    AND status = '${status}';`;
+      break;
+    default:
+      getTodosQuery = `
+   SELECT
+    *
+   FROM
+    todo 
+   WHERE
+    todo LIKE '%${search_q}%';`;
+  }
+
+  data = await db.all(getTodosQuery);
+  response.send(data);
 });
-app.get("/todos/:todoId", async (request, response) => {
+//API-2
+app.get("/todos/:todoId/", async (request, response) => {
   const { todoId } = request.params;
   const query = `SELECT * FROM todo
-    WHERE id = '${todoId}'`;
-  const answer2 = await db.get(query);
-  response.send(answer2);
-});
-app.delete("/todos/:todoId", async (request, response) => {
-  const { todoId } = request.params;
-  const query = `DELETE FROM todo
     WHERE id = ${todoId}`;
-  const answer2 = await db.run(query);
-  response.send("Todo Deleted");
+  const ans = await db.get(query);
+  response.send(ans);
 });
-app.post("/todos/", async (request, response) => {
+//API-3
+app.post("/todos", async (request, response) => {
   const { id, todo, priority, status } = request.body;
-  const query = `INSERT INTO todo
-  (id, todo, priority, status)
-    VALUES('${id}', '${todo}', '${priority}', '${status}')`;
+  const query = `INSERT INTO todo(id, todo, priority, status)
+    VALUES('${id}' , '${todo}', '${priority}',
+    '${status}')`;
   const a = await db.run(query);
   response.send("Todo Successfully Added");
 });
-app.get("/todos/", async (request, response) => {
-  const { status, priority } = request.query;
-  const query = `SELECT * FROM todo
-    WHERE status LIKE '${status}' AND 
-    priority LIKE '${priority}' `;
-  const ans = await db.all(query);
-  response.send(ans);
+//API-4
+const toUpdateStatus = (requestQuery) => {
+  return requestQuery.status !== undefined;
+};
+const toUpdatePriority = (requestQuery) => {
+  return requestQuery.priority !== undefined;
+};
+const toUpdateTodo = (requestQuery) => {
+  return requestQuery.todo !== undefined;
+};
+app.put("/todos/:todoId/", async (request, response) => {
+  const { todoId } = request.params;
+  const { status, priority, todo } = request.body;
+  if (toUpdateStatus(request.body) === true) {
+    const getQuery1 = `UPDATE todo
+            SET status = "${status}"
+            WHERE id = ${todoId}`;
+    const ans = await db.run(getQuery1);
+    response.send("Status");
+  } else if (toUpdatePriority(request.body) === true) {
+    const getQuery2 = `UPDATE todo
+            SET priority = '${priority}'
+            WHERE id = ${todoId}`;
+    const ans1 = await db.run(getQuery2);
+    response.send("Priority");
+  } else {
+    const getQuery3 = `UPDATE todo
+            SET todo = '${todo}'
+            WHERE id = ${todoId}`;
+    const ans2 = await db.run(getQuery3);
+    response.send("Todo");
+  }
+});
+//API-5
+app.delete("/todos/:todoId/", async (request, response) => {
+  const { todoId } = request.params;
+  const query = `DELETE FROM todo
+    WHERE id = ${todoId}`;
+  const ans = await db.run(query);
+  response.send("Todo Deleted");
 });
 module.exports = app;
