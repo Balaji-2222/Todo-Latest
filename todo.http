@@ -2,6 +2,7 @@
 GET http://localhost:3000/todos/?status=TO%20DO
 
 ####
+
 GET http://localhost:3000/todos/?priority=HIGH
 
 ####
@@ -48,7 +49,6 @@ Content-Type:application/json
 
 ####
 GET http://localhost:3000/todos/?status=IN%20PROGRESS&priority=HIGH
-
 
 ####
 GET http://localhost:3000/todos/?search_q=Play

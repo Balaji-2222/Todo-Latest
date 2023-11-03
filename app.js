@@ -115,24 +115,28 @@ const toUpdateTodo = (requestQuery) => {
 app.put("/todos/:todoId/", async (request, response) => {
   const { todoId } = request.params;
   const { status, priority, todo } = request.body;
-  if (toUpdateStatus(request.body) === true) {
-    const getQuery1 = `UPDATE todo
-            SET status = "${status}"
-            WHERE id = ${todoId}`;
-    const ans = await db.run(getQuery1);
-    response.send("Status");
-  } else if (toUpdatePriority(request.body) === true) {
-    const getQuery2 = `UPDATE todo
-            SET priority = '${priority}'
-            WHERE id = ${todoId}`;
-    const ans1 = await db.run(getQuery2);
-    response.send("Priority");
-  } else {
-    const getQuery3 = `UPDATE todo
-            SET todo = '${todo}'
-            WHERE id = ${todoId}`;
-    const ans2 = await db.run(getQuery3);
-    response.send("Todo");
+  switch (true) {
+    case toUpdateStatus(request.body):
+      const query = `UPDATE todo
+          SET status = '${status}'
+          WHERE id = ${todoId}`;
+      await db.run(query);
+      response.send("updated status");
+      break;
+    case toUpdatePriority(request.body):
+      const query1 = `UPDATE todo
+          SET priority = '${priority}'
+          WHERE id = ${todoId}`;
+      await db.run(query1);
+      response.send("updated priority");
+      break;
+    case toUpdateTodo(request.body):
+      const query2 = `UPDATE todo
+          SET todo = '${todo}'
+          WHERE id = ${todoId}`;
+      await db.run(query2);
+      response.send("updated todo");
+      break;
   }
 });
 //API-5
